@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body class="dark">
+    <div class="card dashboard-card">
+      <div class="top">
+        <h2>Welcome, {{ username }}</h2>
+        <a class="logout" href="{{ url_for('logout') }}">Logout</a>
+      </div>
+      <div class="image-wrap">
+  <div id="zoom-container">
+    <img id="zoom-image" src="{{ image_url }}" alt="User image">
+  </div>
+</div>
+
+<script>
+const container = document.getElementById('zoom-container');
+const img = document.getElementById('zoom-image');
+let scale = 1;
+let posX = 0, posY = 0;
+let startX, startY, isDragging = false;
+
+container.addEventListener('wheel', e => {
+  e.preventDefault();
+  const delta = e.deltaY > 0 ? 0.9 : 1.1;
+  scale *= delta;
+  scale = Math.min(Math.max(1, scale), 5);
+  img.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+});
+
+container.addEventListener('mousedown', e => {
+  isDragging = true;
+  startX = e.clientX - posX;
+  startY = e.clientY - posY;
+  container.style.cursor = 'grabbing';
+});
+
+window.addEventListener('mouseup', () => {
+  isDragging = false;
+  container.style.cursor = 'grab';
+});
+
+window.addEventListener('mousemove', e => {
+  if (!isDragging) return;
+  posX = e.clientX - startX;
+  posY = e.clientY - startY;
+  img.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+});
+</script>
+
+      
+    </div>
+  </body>
+</html>
