@@ -111,4 +111,4 @@ def logout():
 
 if __name__ == '__main__':
     # For local development only. Use a proper WSGI server for production.
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

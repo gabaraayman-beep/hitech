@@ -2,3 +2,7 @@ Flask
 Werkzeug
 Pillow
 gunicorn
+Flask
+gunicorn
+Pillow
+Werkzeug
