@@ -114,36 +114,37 @@ import os
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-from werkzeug.security import check_password_hash, generate_password_hash
-
 @app.route('/change_password', methods=['GET', 'POST'])
 def change_password():
     if 'user' not in session:
         return redirect(url_for('login'))
 
     if request.method == 'POST':
-        old_password = request.form['old_password']
-        new_password = request.form['new_password']
-        confirm_password = request.form['confirm_password']
+        old_password = request.form['old_password'].strip()
+        new_password = request.form['new_password'].strip()
+        confirm_password = request.form['confirm_password'].strip()
 
         username = session['user']
 
-        conn = sqlite3.connect("users.db")
+        conn = get_db_connection()
         cur = conn.cursor()
         cur.execute("SELECT password FROM users WHERE username=?", (username,))
-        saved_pass = cur.fetchone()[0]
+        row = cur.fetchone()
 
-        # تحقق من كلمة السر القديمة
+        if not row:
+            flash("Error: User not found!", "danger")
+            return redirect(url_for('dashboard'))
+
+        saved_pass = row['password']
+
         if not check_password_hash(saved_pass, old_password):
             flash("❌ كلمة السر القديمة غير صحيحة!", "danger")
             return redirect(url_for('change_password'))
 
-        # تحقق من أن الجديد يساوي التأكيد
         if new_password != confirm_password:
             flash("❌ كلمة السر الجديدة غير متطابقة!", "danger")
             return redirect(url_for('change_password'))
 
-        # تحديث كلمة السر
         hashed = generate_password_hash(new_password)
         cur.execute("UPDATE users SET password=? WHERE username=?", (hashed, username))
         conn.commit()
